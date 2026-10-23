@@ -1,0 +1,4 @@
+Mini Juego con Pygame 
+
+Implementación de runner infinito en que se tienen que esquivar los obstáculos de tortugas y murciélagos. 
+Va aumentando la dificultad a medida que progresa el juego. 
