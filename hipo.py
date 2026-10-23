@@ -1,7 +1,7 @@
 import pygame
 import sys
 import random
-from Classes import Hipo
+from Classes import Hipo, Tortuga
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -16,13 +16,15 @@ player_score = 0
 game_over = False
 obstacle_timer = 0
 obstacle_spawn = False
-obstacle_cooldown = 1000
+obstacle_cooldown = 4000
 
 ground = pygame.image.load("Assets/Pasto.png").convert_alpha()
-ground = pygame.transform.scale(ground, (2100, 80))
+ground = pygame.transform.scale(ground, (1700, 80))
 ground_x = 0
 
 hipo = Hipo(110, 375)
+tortugas = pygame.sprite.Group()
+last_obstacle_time = pygame.time.get_ticks()
 
 while True:
     for event in pygame.event.get():
@@ -34,15 +36,33 @@ while True:
             if event.key == pygame.K_SPACE:
                 hipo.jump()
 
+            if event.key == pygame.K_DOWN:
+                hipo.set_ducking(True)
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_DOWN:
+                hipo.set_ducking(False)
+
+    current_time = pygame.time.get_ticks()
+
+    if current_time - last_obstacle_time >= obstacle_cooldown:
+        tortuga = Tortuga(1330, 392)
+        tortugas.add(tortuga)
+        last_obstacle_time = current_time
+
     ground_x -= game_speed
-    if ground_x <= -2100:
+    if ground_x <= -1700:
         ground_x = 0
 
-    screen.fill((255, 255, 255))
-    screen.blit(ground, (ground_x, 360))
-    screen.blit(ground, (ground_x + 2100, 360))
+    screen.fill((208, 245, 244))
+    screen.blit(ground, (ground_x, 390))
+    screen.blit(ground, (ground_x + 1700, 390))
 
-    # Update 
+    # Update y dibujo de tortugas
+    tortugas.update()
+    tortugas.draw(screen)
+
+    # Actualizar y dibujar a Hipo
     hipo.update()
     hipo.draw(screen)
 
