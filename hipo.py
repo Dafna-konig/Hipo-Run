@@ -1,30 +1,30 @@
 import pygame
 import sys
 import random
-from Classes import Hipo, Tortuga
+from Classes import Hipo, Tortuga, Bat
 
 pygame.init()
+
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Hipo Run")
 
-#Variables
+# Variables
 game_font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", 24)
 game_speed = 3
-jump_count = 10
 player_score = 0
 game_over = False
-obstacle_timer = 0
-obstacle_spawn = False
-obstacle_cooldown = 4000
-
+obstacle_cooldown = 5000
 ground = pygame.image.load("Assets/Pasto.png").convert_alpha()
-ground = pygame.transform.scale(ground, (1700, 80))
+ground = pygame.transform.scale(ground, (1700, 90))
 ground_x = 0
 
-hipo = Hipo(110, 375)
+# Personaje y grupos de obstáculos
+hipo = Hipo(110, 365)
 tortugas = pygame.sprite.Group()
-last_obstacle_time = pygame.time.get_ticks()
+bats = pygame.sprite.Group()
+last_spawn_time = pygame.time.get_ticks()
+spawn_cooldown = 1800
 
 while True:
     for event in pygame.event.get():
@@ -45,11 +45,18 @@ while True:
 
     current_time = pygame.time.get_ticks()
 
-    if current_time - last_obstacle_time >= obstacle_cooldown:
-        tortuga = Tortuga(1330, 392)
-        tortugas.add(tortuga)
-        last_obstacle_time = current_time
+    if current_time - last_spawn_time >= spawn_cooldown:
 
+        # Elegir aleatoriamente el tipo de obstáculo
+        if random.choice(["tortuga", "bat"]) == "tortuga":
+            tortugas.add(Tortuga(1330, 397))
+        else:
+            bats.add(Bat())
+
+        last_spawn_time = current_time
+        spawn_cooldown = random.randint(1800, 2800)
+
+    # Mover el pasto
     ground_x -= game_speed
     if ground_x <= -1700:
         ground_x = 0
@@ -58,9 +65,12 @@ while True:
     screen.blit(ground, (ground_x, 390))
     screen.blit(ground, (ground_x + 1700, 390))
 
-    # Update y dibujo de tortugas
+    # Actualizar y dibujar obstáculos
     tortugas.update()
+    bats.update()
+
     tortugas.draw(screen)
+    bats.draw(screen)
 
     # Actualizar y dibujar a Hipo
     hipo.update()

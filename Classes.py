@@ -11,23 +11,23 @@ class Hipo(pygame.sprite.Sprite):
         self.x = x
         self.y = y
 
-        self.running_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_1.png"), (110, 150)))
-        self.running_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_2.png"), (110, 150)))
-        self.running_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_1.png"), (110, 150)))
-        self.running_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_3.png"), (110, 150)))
+        self.running_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_1.png"), (150, 200)))
+        self.running_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_2.png"), (150, 200)))
+        self.running_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_1.png"), (150, 200)))
+        self.running_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_3.png"), (150, 200)))
 
 
-        self.ducking_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_Duck_1.png"), (110, 150)))
-        self.ducking_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_Duck_2.png"), (110, 150)))
-        self.ducking_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_Duck_1.png"), (110, 150)))
-        self.ducking_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_Duck_3.png"), (110, 150)))
+        self.ducking_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_Duck_1.png"), (150, 150)))
+        self.ducking_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_Duck_2.png"), (150, 150)))
+        self.ducking_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_Duck_1.png"), (150, 150)))
+        self.ducking_sprites.append(pygame.transform.scale(pygame.image.load("Assets/Hipo_Duck_3.png"), (150, 150)))
 
         self.current_image = 0
         self.image = self.running_sprites[self.current_image]
         self.rect = self.image.get_rect(center=(self.x, self.y))
         self.velocity = 40
-        self.gravity = 0.6
-        self.jump_speed = -15
+        self.gravity = 0.5
+        self.jump_speed = -14
         self.velocity_y = 0
         self.is_jumping = False
         self.ducking = False
@@ -63,8 +63,8 @@ class Hipo(pygame.sprite.Sprite):
             self.rect.y += round(self.velocity_y)
 
             # Comprobar si Hipo tocó el suelo
-            if self.rect.bottom >= 450:
-                self.rect.bottom = 450
+            if self.rect.bottom >= 460:
+                self.rect.bottom = 460
                 self.velocity_y = 0
                 self.is_jumping = False
         self.animate()
@@ -96,7 +96,7 @@ class Tortuga(pygame.sprite.Sprite):
         super().__init__()
         self.sprites = []
 
-        for i in range(1, 3):
+        for i in range(1, 5):
             image = pygame.image.load(f"Assets/Tortuga_{i}.png").convert_alpha()
             image = pygame.transform.scale(image, (150, 90))
             self.sprites.append(image)
@@ -113,3 +113,37 @@ class Tortuga(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
         
+
+
+class Bat(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.sprites = []
+
+        for filename in ["Bat_1.png", "Bat_2.png"]:
+            image = pygame.image.load(f"Assets/{filename}").convert_alpha()
+            image = pygame.transform.scale(image, (120, 105))
+            self.sprites.append(image)
+
+        self.current_image = 0
+        self.animation_speed = 0.1
+        self.speed = 6
+
+        y = random.choice([310, 211])
+        self.image = self.sprites[0]
+        self.rect = self.image.get_rect(center=(1300, y))
+
+    def update(self):
+        # Mover y animar el murciélago
+        self.rect.x -= self.speed
+        self.animate()
+        # Eliminarlo al salir de la pantalla
+        if self.rect.right < 0:
+            self.kill()
+
+    def animate(self):
+        self.current_image += self.animation_speed
+        if self.current_image >= len(self.sprites):
+            self.current_image = 0
+        self.image = self.sprites[int(self.current_image)]
+
