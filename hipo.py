@@ -55,6 +55,26 @@ mini_names = ["Sylvia", "Mora", "Bigotes", "Cunky", "Platón", "Gambito", "Rober
               "Ángel", "Abed", "Hummus", "Pelusa", "Espresso", "Flan", "Coco", "Fuji", "Alvi", "Penco", "Samurai", "Arya"]
 selected_minis = []
 
+def reset_game():
+    global hipo, tortugas, bats, huevos
+    global game_speed, player_score, eggs_collected
+    global game_over, selected_minis
+    global last_spawn_time, spawn_cooldown, next_egg_spawn
+    hipo = Hipo(110, 365)
+    tortugas = pygame.sprite.Group()
+    bats = pygame.sprite.Group()
+    huevos = pygame.sprite.Group()
+    game_speed = 3
+    player_score = 0
+    eggs_collected = 0
+    game_over = False
+    selected_minis = []
+    last_spawn_time = pygame.time.get_ticks()
+    spawn_cooldown = random.randint(1100, 2000)
+    next_egg_spawn = pygame.time.get_ticks() + random.randint(5000, 9000)
+    global ground_x
+    ground_x = 0
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -62,15 +82,19 @@ while True:
             sys.exit()
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
+            if game_over and event.key == pygame.K_r:
+                reset_game()
+
+            elif not game_over and event.key == pygame.K_SPACE:
                 hipo.jump()
 
-            if event.key == pygame.K_DOWN:
+            elif not game_over and event.key == pygame.K_DOWN:
                 hipo.set_ducking(True)
 
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_DOWN:
+            if event.key == pygame.K_DOWN and not game_over:
                 hipo.set_ducking(False)
+        
 
     if game_over:
         draw_game_over(screen, game_font, player_score, selected_minis)

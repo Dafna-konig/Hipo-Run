@@ -1,5 +1,6 @@
 import pygame
 import random
+from Classes import Hipo
 
 def choose_mini_hippos(mini_hippos, mini_names, eggs_collected):
     minis_with_names = list(zip(mini_hippos, mini_names))
@@ -40,4 +41,11 @@ def draw_game_over(screen, game_font, player_score, selected_minis):
         name_text = name_font.render(name, True, (0, 0, 0))
         name_rect = name_text.get_rect(center=(x, y + 43))
         screen.blit(name_text, name_rect)
+
+
+    restart_font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", 13)
+    restart_text = restart_font.render("Presiona R para jugar de nuevo", True, (0, 0, 0))
+    screen.blit(restart_text, restart_text.get_rect(center=(640, 650)))
+
+
 
