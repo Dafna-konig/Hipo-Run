@@ -13,7 +13,7 @@ def load_save_data():
                 high_score = int(data.get("high_score", 0))
                 max_eggs = int(data.get("max_eggs", 0))
                 unlocked_raw = data.get("unlocked_minis", [])
-                unlocked_set = {int(x) for x in unlocked_raw if 1 <= int(x) <= 24}
+                unlocked_set = {int(x) for x in unlocked_raw if 1 <= int(x) <= 48}
                 return high_score, max_eggs, unlocked_set
         except Exception:
             return 0, 0, set()
@@ -61,7 +61,7 @@ def unlock_minis(new_indices):
         newly_unlocked = []
         for idx in new_indices:
             idx = int(idx)
-            if 1 <= idx <= 24 and idx not in unlocked_set:
+            if 1 <= idx <= 48 and idx not in unlocked_set:
                 unlocked_set.add(idx)
                 newly_unlocked.append(idx)
 

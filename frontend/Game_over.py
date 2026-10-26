@@ -25,7 +25,7 @@ def choose_mini_hippos(mini_hippos, mini_names, eggs_collected, unlocked_ids=Non
     all_indices = list(range(1, total_available + 1))
     random.shuffle(all_indices)
 
-    # Pick up to eggs_collected without repeating up to 24, then repeat randomly
+    # Pick up to eggs_collected without repeating up to 48, then repeat randomly
     selected_ids = list(all_indices[:min(eggs_collected, total_available)])
     while len(selected_ids) < eggs_collected:
         selected_ids.append(random.choice(all_indices))
@@ -135,7 +135,7 @@ def draw_game_over(screen, game_font, player_score, high_score, is_new_record, s
     btn_bg = (113, 205, 205) if is_col_hover else (143, 223, 221)
     pygame.draw.rect(screen, btn_bg, col_btn_rect, border_radius=10)
     pygame.draw.rect(screen, (35, 75, 75), col_btn_rect, width=2, border_radius=10)
-    col_btn_text = btn_f.render(f"VER ÁLBUM [C] ({unlocked_count}/24)", True, (35, 75, 75))
+    col_btn_text = btn_f.render(f"VER ÁLBUM [C] ({unlocked_count}/48)", True, (35, 75, 75))
     screen.blit(col_btn_text, col_btn_text.get_rect(center=col_btn_rect.center))
 
     # Restart & Mute prompts at bottom
@@ -152,8 +152,6 @@ def draw_game_over(screen, game_font, player_score, high_score, is_new_record, s
 
 # Start screen decorations cache
 _start_decor = None
-
-
 def _get_start_decor():
     global _start_decor
     if _start_decor is None:
@@ -228,7 +226,7 @@ def draw_start_screen(screen, title_font, otro_font, start_image, flor1, flor2, 
     inst_font = get_font(12)
     inst1 = inst_font.render("Esquiva las tortugas y murciélagos", True, (35, 75, 75))
     screen.blit(inst1, inst1.get_rect(center=(640, 460)))
-    inst2 = inst_font.render("¡Atrapa huevos para coleccionar los 24 mini hipos!", True, (35, 75, 75))
+    inst2 = inst_font.render("¡Atrapa huevos para coleccionar los 48 mini hipos!", True, (35, 75, 75))
     screen.blit(inst2, inst2.get_rect(center=(640, 478)))
     ctrl_font = get_font(10)
     ctrl_text = ctrl_font.render("[ESPACIO / W / ↑] Saltar   [S / ↓] Agacharse   [P] Pausa   [M] Mutear", True, (90, 130, 130))
@@ -251,10 +249,10 @@ def draw_start_screen(screen, title_font, otro_font, start_image, flor1, flor2, 
 
     # 2. Collección
     is_col_hover = col_btn.collidepoint(mouse_pos)
-    col_color = (87, 162, 222) if is_col_hover else (110, 207, 226)
+    col_color = (149, 162, 222) if is_col_hover else (196, 207, 255)
     pygame.draw.rect(screen, col_color, col_btn, border_radius=14)
     pygame.draw.rect(screen, (35, 75, 75), col_btn, width=3, border_radius=14)
-    col_text = btn_font.render(f"Álbum ({unlocked_count}/24)", True, (35, 75, 75))
+    col_text = btn_font.render(f"Álbum ({unlocked_count}/48)", True, (35, 75, 75))
     screen.blit(col_text, col_text.get_rect(center=(col_btn.centerx, col_btn.centery - 6)))
     key_hint = get_font(9).render("Presiona [C]", True, (35, 75, 75))
     screen.blit(key_hint, key_hint.get_rect(center=(col_btn.centerx, col_btn.centery + 15)))

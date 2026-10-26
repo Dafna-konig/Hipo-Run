@@ -9,7 +9,13 @@ from backend.audio import AudioManager
 from backend.high_score import get_unlocked_minis, load_high_score, save_high_score, unlock_minis
 from frontend.Game_over import choose_mini_hippos, draw_game_over, draw_pause_screen, draw_start_screen
 from frontend.background import BackgroundManager
-from frontend.collection import draw_collection_screen
+from frontend.collection import (
+    draw_collection_screen,
+    get_current_page,
+    next_page,
+    prev_page,
+    set_current_page,
+)
 from frontend.particles import ParticleManager
 
 # Inicializar Pygame & Mixer
@@ -53,14 +59,17 @@ flower2 = pygame.transform.scale(flower2, (42, 42))
 
 # Cargar los 24 Mini Hipos una sola vez
 mini_hippos = []
-for i in range(1, 25):
+for i in range(1, 49):
     img = pygame.image.load(f"Assets/Minis/mini_{i}.png").convert_alpha()
     mini_hippos.append(img)
 
 mini_names = [
-    "Sylvia", "Mora", "Bigotes", "Cunky", "Platón", "Gambito", "Roberto", "Óscar",
-    "Chicho", "Focaccia", "Carlos", "Soya", "Ángel", "Abed", "Hummus", "Pelusa",
-    "Espresso", "Flan", "Coco", "Fuji", "Alvi", "Penco", "Samurai", "Arya"
+    "Sylvia", "Mora", "Bigotes", "Cunky", "Platón", "Gambito", "Roberto", "Óscar",  #8
+    "Chicho", "Focaccia", "Carlos", "Soya", "Ángel", "Abed", "Magnolia", "Pelusa",  #16
+    "Espresso", "Flan", "Coco", "Fuji", "Alvi", "Penco", "Samurai", "Arya", #24
+    "Fuchsia", "Mario Hugo", "Frodo", "Lolita", "Jote", "Magnus", "Hummus", "Canelo", #32
+    "Tulipa", "Jesús G", "Hoppy", "Ubwuzu", "Kalita", "Troy", "Pablo", "Mangual",  #40
+    "Kiko", "Liguria", "Alex", "Cotona", "Krtek", "Amor", "Maní", "Dino"
 ]
 
 # Estados del juego
@@ -141,7 +150,13 @@ def main():
     play_btn = pygame.Rect(330, 560, 280, 58)
     col_btn = pygame.Rect(640, 560, 310, 58)
     col_btn_rect = pygame.Rect(450, 580, 380, 44)
-    back_btn = pygame.Rect(490, 620, 300, 48)
+    col_buttons = {
+        "back": pygame.Rect(500, 615, 280, 46),
+        "prev": pygame.Rect(260, 552, 90, 38),
+        "next": pygame.Rect(910, 552, 90, 38),
+        "page1": pygame.Rect(370, 552, 250, 38),
+        "page2": pygame.Rect(640, 552, 250, 38),
+    }
 
     while True:
         current_time = pygame.time.get_ticks()
@@ -168,6 +183,7 @@ def main():
                     elif event.key == pygame.K_c:
                         audio.play("click")
                         previous_state = STATE_START
+                        set_current_page(0)
                         state = STATE_COLLECTION
 
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -177,6 +193,7 @@ def main():
                     elif col_btn.collidepoint(event.pos):
                         audio.play("click")
                         previous_state = STATE_START
+                        set_current_page(0)
                         state = STATE_COLLECTION
 
             # --- ESTADO JUGANDO ---
@@ -214,12 +231,14 @@ def main():
                     elif event.key == pygame.K_c:
                         audio.play("click")
                         previous_state = STATE_GAME_OVER
+                        set_current_page(0)
                         state = STATE_COLLECTION
 
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if col_btn_rect.collidepoint(event.pos):
                         audio.play("click")
                         previous_state = STATE_GAME_OVER
+                        set_current_page(0)
                         state = STATE_COLLECTION
                     else:
                         audio.play("click")
@@ -231,11 +250,35 @@ def main():
                     if event.key in (pygame.K_ESCAPE, pygame.K_c, pygame.K_SPACE, pygame.K_RETURN):
                         audio.play("click")
                         state = previous_state
+                    elif event.key in (pygame.K_LEFT, pygame.K_a):
+                        audio.play("click")
+                        prev_page()
+                    elif event.key in (pygame.K_RIGHT, pygame.K_d):
+                        audio.play("click")
+                        next_page()
+                    elif event.key in (pygame.K_1, pygame.K_KP1):
+                        audio.play("click")
+                        set_current_page(0)
+                    elif event.key in (pygame.K_2, pygame.K_KP2):
+                        audio.play("click")
+                        set_current_page(1)
 
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if back_btn.collidepoint(event.pos):
+                    if col_buttons.get("back") and col_buttons["back"].collidepoint(event.pos):
                         audio.play("click")
                         state = previous_state
+                    elif col_buttons.get("prev") and col_buttons["prev"].collidepoint(event.pos):
+                        audio.play("click")
+                        prev_page()
+                    elif col_buttons.get("next") and col_buttons["next"].collidepoint(event.pos):
+                        audio.play("click")
+                        next_page()
+                    elif col_buttons.get("page1") and col_buttons["page1"].collidepoint(event.pos):
+                        audio.play("click")
+                        set_current_page(0)
+                    elif col_buttons.get("page2") and col_buttons["page2"].collidepoint(event.pos):
+                        audio.play("click")
+                        set_current_page(1)
 
         # ================= RENDERIZADO Y ACTUALIZACIÓN =================
 
@@ -255,7 +298,7 @@ def main():
             )
 
         elif state == STATE_COLLECTION:
-            back_btn = draw_collection_screen(game_surface, unlocked_minis, mini_hippos, mini_names)
+            col_buttons = draw_collection_screen(game_surface, unlocked_minis, mini_hippos, mini_names)
 
         elif state == STATE_PLAYING:
             # 1. Generación de obstáculos
@@ -373,9 +416,6 @@ def main():
                 game_surface.blit(hud_egg_icon, (14, 25))
                 eggs_text = hud_font.render(f": {eggs_collected}", True, (25, 55, 55))
                 game_surface.blit(eggs_text, (100, 55))
-
-                album_text = small_font.render(f"Minis: {len(unlocked_minis)}/24", True, (70, 115, 115))
-                game_surface.blit(album_text, (280, 56))
 
                 if audio.muted:
                     mute_indicator = small_font.render("MUTED (M)", True, (180, 80, 80))
