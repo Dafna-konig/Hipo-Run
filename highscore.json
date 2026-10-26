@@ -1,6 +1,16 @@
 {
-  "high_score": 0,
-  "max_eggs": 6,
+  "high_score": 552,
+  "max_eggs": 9,
   "unlocked_minis": [
+    5,
+    6,
+    11,
+    30,
+    35,
+    37,
+    39,
+    45,
+    46,
+    48
   ]
 }

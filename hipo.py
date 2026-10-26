@@ -127,7 +127,7 @@ def reset_game():
     current_time = pygame.time.get_ticks()
     last_spawn_time = current_time
     spawn_cooldown = random.randint(1400, 2200)
-    next_egg_spawn = current_time + random.randint(6500, 9000)
+    next_egg_spawn = current_time + random.randint(7500, 10000)
     state = STATE_PLAYING
 
 
