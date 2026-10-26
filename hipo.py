@@ -4,13 +4,13 @@ import random
 import sys
 import pygame
 
-from Classes import Bat, Hipo, Huevo, Tortuga
-from Game_over import choose_mini_hippos, draw_game_over, draw_pause_screen, draw_start_screen
-from audio import AudioManager
-from background import BackgroundManager
-from collection import draw_collection_screen
-from high_score import get_unlocked_minis, load_high_score, save_high_score, unlock_minis
-from particles import ParticleManager
+from backend.Classes import Bat, Hipo, Huevo, Tortuga
+from backend.audio import AudioManager
+from backend.high_score import get_unlocked_minis, load_high_score, save_high_score, unlock_minis
+from frontend.Game_over import choose_mini_hippos, draw_game_over, draw_pause_screen, draw_start_screen
+from frontend.background import BackgroundManager
+from frontend.collection import draw_collection_screen
+from frontend.particles import ParticleManager
 
 # Inicializar Pygame & Mixer
 pygame.init()

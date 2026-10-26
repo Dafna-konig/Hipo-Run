@@ -6,8 +6,8 @@ La dificultad va aumentando progresivamente a medida que avanzas en el juego.
 Atrapa los huevos mágicos para obtener puntos extras y rescatar a los 24 mini hipos coleccionables.
 
 <p align="center">
-    <img src="Juego.png" alt="Inicio del juego" width="400"/>
-    <img src="Juego1.png" alt="Fin del juego" width="400"/>
+    <img src="Assets/Juego.png" alt="Inicio del juego" width="400"/>
+    <img src="Assets/Juego1.png" alt="Fin del juego" width="400"/>
 </p>
 
 ## Novedades y Mejoras Recientes

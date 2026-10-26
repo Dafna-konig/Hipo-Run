@@ -1,7 +1,7 @@
 import json
 import os
 
-SAVE_FILE = os.path.join(os.path.dirname(__file__), "highscore.json")
+SAVE_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "highscore.json")
 
 
 def load_save_data():
