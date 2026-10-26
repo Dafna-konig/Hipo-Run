@@ -2,7 +2,7 @@ import pygame
 import sys
 import random
 from Classes import Hipo, Tortuga, Bat, Huevo
-from Game_over import draw_game_over, choose_mini_hippos
+from Game_over import draw_game_over, choose_mini_hippos, draw_start_screen
 
 pygame.init()
 
@@ -11,7 +11,9 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("Hipo Run")
 
 # Variables
+title_font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", 48)
 game_font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", 24)
+otro_font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", 15)
 game_speed = 3
 player_score = 0
 game_over = False
@@ -22,6 +24,14 @@ eggs_collected = 0
 
 egg_icon = pygame.image.load("Assets/Huevo_1a.png").convert_alpha()
 egg_icon = pygame.transform.scale(egg_icon, (130, 90))
+game_started = False
+start_image = pygame.image.load("Assets/Hipo_1.png").convert_alpha()
+start_image = pygame.transform.scale(start_image, (300, 250))
+start_button_rect = pygame.Rect(490, 580, 300, 65)
+flower1 = pygame.image.load("Assets/Flor1.png").convert_alpha()
+flower2 = pygame.image.load("Assets/Flor2.png").convert_alpha()
+flower1 = pygame.transform.scale(flower1, (60, 60))
+flower2 = pygame.transform.scale(flower2, (45, 45))
 
 # Personaje y grupos de obstáculos
 hipo = Hipo(110, 365)
@@ -60,6 +70,8 @@ def reset_game():
     global game_speed, player_score, eggs_collected
     global game_over, selected_minis
     global last_spawn_time, spawn_cooldown, next_egg_spawn
+    global game_started
+    game_started = True
     hipo = Hipo(110, 365)
     tortugas = pygame.sprite.Group()
     bats = pygame.sprite.Group()
@@ -74,6 +86,7 @@ def reset_game():
     next_egg_spawn = pygame.time.get_ticks() + random.randint(5000, 9000)
     global ground_x
     ground_x = 0
+    
 
 while True:
     for event in pygame.event.get():
@@ -84,16 +97,35 @@ while True:
         if event.type == pygame.KEYDOWN:
             if game_over and event.key == pygame.K_r:
                 reset_game()
+            elif not game_started and not game_over:
+                if event.key == pygame.K_SPACE:
+                    game_started = True
+                    current_time = pygame.time.get_ticks()
+                    last_spawn_time = current_time
+                    next_egg_spawn = current_time + random.randint(6000, 9000)
 
-            elif not game_over and event.key == pygame.K_SPACE:
-                hipo.jump()
-
-            elif not game_over and event.key == pygame.K_DOWN:
-                hipo.set_ducking(True)
+            elif game_started and not game_over:
+                if event.key == pygame.K_SPACE:
+                    hipo.jump()
+                elif event.key == pygame.K_DOWN:
+                    hipo.set_ducking(True)
 
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_DOWN and not game_over:
+            if event.key == pygame.K_DOWN and game_started and not game_over:
                 hipo.set_ducking(False)
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if (event.button == 1 and not game_started and not game_over and start_button_rect.collidepoint(event.pos)):
+                game_started = True
+                current_time = pygame.time.get_ticks()
+                last_spawn_time = current_time
+                next_egg_spawn = current_time + random.randint(6000, 9000)
+
+    if not game_started and not game_over: 
+        draw_start_screen(screen, title_font, otro_font, start_image, flower1, flower2)
+        pygame.display.flip()
+        clock.tick(60)
+        continue
         
 
     if game_over:
@@ -157,7 +189,7 @@ while True:
         eggs_text = game_font.render(f" : {eggs_collected}", True, (0, 0, 0))
         screen.blit(eggs_text, (89, 50))
         game_speed += 0.0025
-        spawn_cooldown = max(800, random.randint(1500, 3000) - int(player_score * 2))
+        spawn_cooldown = max(900, random.randint(1500, 3000) - int(player_score * 2))
 
 
     pygame.display.flip()
