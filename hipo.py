@@ -342,7 +342,7 @@ def main():
                 if col_pos:
                     particles.add_impact(col_pos[0], col_pos[1])
 
-                # Elegir mini hipos priorizando los que aún no han sido descubiertos
+                # Elegir mini hipos 
                 selected_minis = choose_mini_hippos(
                     mini_hippos, mini_names, eggs_collected, unlocked_minis
                 )

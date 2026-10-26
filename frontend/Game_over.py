@@ -14,8 +14,8 @@ def get_font(size):
 
 def choose_mini_hippos(mini_hippos, mini_names, eggs_collected, unlocked_ids=None):
     """
-    Selects mini hippos based on eggs collected.
-    Prioritizes undiscovered mini hippos so players expand their collection!
+    Selects mini hippos purely at random based on eggs collected.
+    No preference for undiscovered ones - purely random selection!
     Returns list of dicts: {'id': id, 'image': img, 'name': name, 'is_new': bool}
     """
     if unlocked_ids is None:
@@ -23,26 +23,10 @@ def choose_mini_hippos(mini_hippos, mini_names, eggs_collected, unlocked_ids=Non
 
     total_available = len(mini_hippos)
     all_indices = list(range(1, total_available + 1))
+    random.shuffle(all_indices)
 
-    # Separate into locked and already unlocked
-    locked_ids = [i for i in all_indices if i not in unlocked_ids]
-    unlocked_list = [i for i in all_indices if i in unlocked_ids]
-
-    random.shuffle(locked_ids)
-    random.shuffle(unlocked_list)
-
-    # Pick up to eggs_collected, giving priority to locked
-    selected_ids = []
-    # Up to 24 unique
-    needed = min(eggs_collected, total_available)
-    # Take from locked first
-    from_locked = locked_ids[:needed]
-    selected_ids.extend(from_locked)
-    # Fill remaining from already unlocked
-    if len(selected_ids) < needed:
-        selected_ids.extend(unlocked_list[:(needed - len(selected_ids))])
-
-    # If player collected MORE than total_available, duplicate randomly
+    # Pick up to eggs_collected without repeating up to 24, then repeat randomly
+    selected_ids = list(all_indices[:min(eggs_collected, total_available)])
     while len(selected_ids) < eggs_collected:
         selected_ids.append(random.choice(all_indices))
 
@@ -166,43 +150,86 @@ def draw_game_over(screen, game_font, player_score, high_score, is_new_record, s
     return col_btn_rect
 
 
+# Start screen decorations cache
+_start_decor = None
+
+
+def _get_start_decor():
+    global _start_decor
+    if _start_decor is None:
+        try:
+            m1 = pygame.transform.scale(pygame.image.load("Assets/Minis/mini_1.png").convert_alpha(), (72, 54))
+            m2 = pygame.transform.scale(pygame.image.load("Assets/Minis/mini_2.png").convert_alpha(), (72, 54))
+            egg = pygame.transform.scale(pygame.image.load("Assets/Huevo_1a.png").convert_alpha(), (52, 38))
+        except Exception:
+            m1, m2, egg = None, None, None
+
+        # Pre-render Nubes
+        def make_cloud(w, h):
+            s = pygame.Surface((w, h), pygame.SRCALPHA)
+            col = (255, 255, 255, 175)
+            pygame.draw.circle(s, col, (int(w * 0.28), int(h * 0.55)), int(h * 0.35))
+            pygame.draw.circle(s, col, (int(w * 0.50), int(h * 0.42)), int(h * 0.44))
+            pygame.draw.circle(s, col, (int(w * 0.72), int(h * 0.55)), int(h * 0.35))
+            pygame.draw.rect(
+                s, col,
+                (int(w * 0.18), int(h * 0.48), int(w * 0.64), int(h * 0.38)),
+                border_radius=int(h * 0.18)
+            )
+            return s
+
+        clouds = [
+            (make_cloud(135, 52), 120.0, 55.0, 0.25),
+            (make_cloud(170, 62), 620.0, 45.0, 0.18),
+            (make_cloud(145, 55), 1010.0, 65.0, 0.22),
+            (make_cloud(135, 52), 300.0, 100.0, 0.25),
+            (make_cloud(170, 52), 800.0, 100.0, 0.25),
+            (make_cloud(135, 52), 1200.0, 100.0, 0.25)]
+
+        _start_decor = {"m1": m1, "m2": m2, "egg": egg,"clouds": clouds,}
+    return _start_decor
+
+
 def draw_start_screen(screen, title_font, otro_font, start_image, flor1, flor2, high_score=0, unlocked_count=0):
     screen.fill((208, 245, 244))
-
-    # Gentle breathing/floating motion for title image
     now_ticks = pygame.time.get_ticks()
-    float_offset = math.sin(now_ticks * 0.004) * 5.0
+    decor = _get_start_decor()
 
-    # Title shadow & text
+    # Nubes
+    for c_surf, base_x, y, spd in decor["clouds"]:
+        cur_x = (base_x + (now_ticks * 0.02 * spd)) % 1450 - 150
+        screen.blit(c_surf, (int(cur_x), int(y)))
+
+    # Título
+    float_offset = math.sin(now_ticks * 0.004) * 5.0
     title_text = title_font.render("HIPO RUN", True, (25, 65, 65))
     title_shadow = title_font.render("HIPO RUN", True, (135, 195, 195))
     screen.blit(title_shadow, title_shadow.get_rect(center=(643, 133)))
     screen.blit(title_text, title_text.get_rect(center=(640, 130)))
 
-    # Start character image with gentle float
+    # Hipo
     img_rect = start_image.get_rect(center=(640, 290 + float_offset))
     screen.blit(start_image, img_rect)
 
-    # Flowers decoration
+    # Flores
+    sway2 = math.cos(now_ticks * 0.003) * 2.5
     screen.blit(flor1, (280, 120))
     screen.blit(flor2, (355, 105))
     screen.blit(flor2, (880, 120))
     screen.blit(flor1, (945, 95))
 
-    # High score banner if exists
+    # High score 
     if high_score > 0:
         hs_font = get_font(13)
-        hs_surf = hs_font.render(f"★ RECORD: {int(high_score)} ★", True, (190, 130, 20))
+        hs_surf = hs_font.render(f"★ RECORD: {int(high_score)} ★", True, (34, 122, 122))
         screen.blit(hs_surf, hs_surf.get_rect(center=(640, 420)))
 
-    # Instructions
+    # Instrucciones
     inst_font = get_font(12)
     inst1 = inst_font.render("Esquiva las tortugas y murciélagos", True, (35, 75, 75))
-    screen.blit(inst1, inst1.get_rect(center=(640, 452)))
+    screen.blit(inst1, inst1.get_rect(center=(640, 460)))
     inst2 = inst_font.render("¡Atrapa huevos para coleccionar los 24 mini hipos!", True, (35, 75, 75))
     screen.blit(inst2, inst2.get_rect(center=(640, 478)))
-
-    # Controls guide
     ctrl_font = get_font(10)
     ctrl_text = ctrl_font.render("[ESPACIO / W / ↑] Saltar   [S / ↓] Agacharse   [P] Pausa   [M] Mutear", True, (90, 130, 130))
     screen.blit(ctrl_text, ctrl_text.get_rect(center=(640, 514)))
@@ -210,26 +237,26 @@ def draw_start_screen(screen, title_font, otro_font, start_image, flor1, flor2, 
     mouse_pos = pygame.mouse.get_pos()
     btn_font = get_font(16)
 
-    # Two side-by-side action buttons: [ ¡JUGAR! ] and [ ALBUM (X/24) [C] ]
+    # Botones
     play_btn = pygame.Rect(330, 560, 280, 58)
     col_btn = pygame.Rect(640, 560, 310, 58)
 
-    # 1. Play Button
+    # 1. Play 
     is_play_hover = play_btn.collidepoint(mouse_pos)
-    play_col = (113, 205, 205) if is_play_hover else (143, 223, 221)
+    play_col = (149, 162, 222) if is_play_hover else (196, 207, 255)
     pygame.draw.rect(screen, play_col, play_btn, border_radius=14)
     pygame.draw.rect(screen, (35, 75, 75), play_btn, width=3, border_radius=14)
-    play_text = btn_font.render("¡JUGAR!", True, (35, 75, 75))
+    play_text = btn_font.render("JUGAR", True, (35, 75, 75))
     screen.blit(play_text, play_text.get_rect(center=play_btn.center))
 
-    # 2. Collection Button
+    # 2. Collección
     is_col_hover = col_btn.collidepoint(mouse_pos)
-    col_color = (255, 235, 140) if is_col_hover else (255, 245, 180)
+    col_color = (87, 162, 222) if is_col_hover else (110, 207, 226)
     pygame.draw.rect(screen, col_color, col_btn, border_radius=14)
-    pygame.draw.rect(screen, (160, 120, 20), col_btn, width=3, border_radius=14)
-    col_text = btn_font.render(f"ÁLBUM ({unlocked_count}/24)", True, (130, 95, 15))
+    pygame.draw.rect(screen, (35, 75, 75), col_btn, width=3, border_radius=14)
+    col_text = btn_font.render(f"Álbum ({unlocked_count}/24)", True, (35, 75, 75))
     screen.blit(col_text, col_text.get_rect(center=(col_btn.centerx, col_btn.centery - 6)))
-    key_hint = get_font(9).render("Presiona [C]", True, (150, 115, 30))
+    key_hint = get_font(9).render("Presiona [C]", True, (35, 75, 75))
     screen.blit(key_hint, key_hint.get_rect(center=(col_btn.centerx, col_btn.centery + 15)))
 
     return play_btn, col_btn
